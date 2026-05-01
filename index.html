@@ -68,7 +68,11 @@ body::before{
     </div>
 
     <div>
-         <img id="icon">
+        <img id="icon" src="icons/sun.png" class="weather-icon">
+        <div id="temp"></div>
+        <div id="desc"></div>
+    </div>
+</div>
 
 <div class="event" id="event">Načítavam...</div>
 
@@ -203,18 +207,7 @@ function showHome(){
 
 /* 🌿 BUTTON */
 function addPlant(){
-  let name = prompt("Názov rastliny?");
-  if(!name) return;
-
-  let plants = JSON.parse(localStorage.getItem("plants")) || [];
-
-  plants.push({
-    name: name
-  });
-
-  localStorage.setItem("plants", JSON.stringify(plants));
-
-  renderPlants();
+  alert("fungujem 💥");
 }
 
 </script>
