@@ -170,63 +170,60 @@ loadWeather();
 /* 📋 SHEETS – FUNKČNÉ */
 const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
 const gid = '602623609';
-
+/* 📋 FINÁLNA VERZIA OZNAMOV */
 function loadEvents(){
     fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`)
     .then(res => res.text())
     .then(txt => {
-
+        // Spracovanie surového textu z Google Sheets do JSON formátu
         let json = JSON.parse(txt.substring(47).slice(0,-2));
-
         let now = new Date();
         let html = "";
         let found = 0;
 
-        json.table.rows.forEach(r=>{
+        json.table.rows.forEach(r => {
             if(!r.c) return;
 
-            let val = r.c[1]?.f || r.c[1]?.v || "";
-
-            let isToday =
-                val.includes(`Date(${now.getFullYear()},${now.getMonth()},${now.getDate()}`) ||
-                val.includes(`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`);
-
-            if(!isToday) return;
-
+            // Získanie hodnôt zo stĺpcov: B (Dátum), C (Meno/Auto), D (Text oznamu)
+            let dateVal = r.c[1]?.f || r.c[1]?.v || "";
             let auto = r.c[2]?.v || "";
             let note = r.c[3]?.v || "";
 
-            html += `✨ ${note}<br>(${auto})`;
+            // 1. KONTROLA: Ak je bunka s textom (stĺpec D) prázdna, riadok úplne preskoč
+            if (!note || note.toString().trim() === "") return;
+
+            // 2. KONTROLA DÁTUMU: Či sa dátum v tabuľke zhoduje s dneškom
+            let isToday = 
+                dateVal.includes(`Date(${now.getFullYear()},${now.getMonth()},${now.getDate()}`) || 
+                dateVal.includes(`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`);
+
+            if(!isToday) return;
+
+            // Ak prešiel dátum aj text, ideme vykresľovať
             found++;
+
+            // Zátvorky s menom (auto) sa pridajú, len ak nie sú prázdne
+            let subText = (auto && auto.toString().trim() !== "") 
+                ? `<br><small style="opacity:0.6; font-size: 0.7em;">(${auto})</small>` 
+                : "";
+
+            // Pridanie riadku do výsledného zoznamu
+            html += `<div style="margin-bottom: 25px; line-height: 1.4;">
+                        <span style="color: #ffeb3b;">✨</span> ${note}${subText}
+                     </div>`;
         });
 
-        document.getElementById("event").innerHTML =
-            found ? html : "✨ Žiadne udalosti dnes";
+        // Ak sa nič nenašlo, vypíše sa predvolený text
+        document.getElementById("event").innerHTML = 
+            found ? html : "<span style='opacity:0.5;'>✨ Žiadne udalosti dnes</span>";
 
     })
-    .catch(()=>{
-        document.getElementById("event").innerHTML="❌ Chyba načítania";
+    .catch(err => {
+        console.error("Chyba Sheets:", err);
+        document.getElementById("event").innerHTML = "❌ Chyba spojenia s tabuľkou";
     });
 }
-loadEvents();
 
-/* 🔁 NAVIGÁCIA */
-function showFlora(){
-  document.querySelector(".main").style.display="none";
-  document.getElementById("event").style.display="none";
-  document.getElementById("flora").style.display="block";
-}
-
-function showHome(){
-  document.querySelector(".main").style.display="flex";
-  document.getElementById("event").style.display="block";
-  document.getElementById("flora").style.display="none";
-}
-
-/* 🌿 BUTTON */
-function addPlant(){
-  alert("fungujem 💥");
-}
 
 </script>
 
