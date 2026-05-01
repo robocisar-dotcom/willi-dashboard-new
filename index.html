@@ -8,7 +8,7 @@
 <style>
 
 /* =========================
-   🎨 LAYOUT – ZÁKLAD
+   🎨 LAYOUT – ZÁKLAD (BEGIN)
 ========================= */
 
 body{
@@ -32,9 +32,13 @@ body::before{
     opacity:0.6;
 }
 
+/* =========================
+   🎨 LAYOUT – ZÁKLAD (END)
+========================= */
+
 
 /* =========================
-   🧱 LAYOUT – HLAVNÝ OBSAH
+   🧱 LAYOUT – HLAVNÝ OBSAH (BEGIN)
 ========================= */
 
 .main{
@@ -46,9 +50,13 @@ body::before{
     gap:50px;
 }
 
+/* =========================
+   🧱 LAYOUT – HLAVNÝ OBSAH (END)
+========================= */
+
 
 /* =========================
-   ⏰ HODINY
+   ⏰ HODINY (BEGIN)
 ========================= */
 
 #clock{
@@ -56,20 +64,21 @@ body::before{
     font-weight:800;
 }
 
-#date{
+#date-sk{
     opacity:0.7;
 }
 
+/* =========================
+   ⏰ HODINY (END)
+========================= */
+
 
 /* =========================
-   🌦️ POČASIE
+   🌦️ POČASIE (BEGIN)
 ========================= */
 
 .weather-icon{
     width: clamp(250px, 25vw, 500px);
-    display:block;
-    margin:auto;
-    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.7));
 }
 
 #temp{
@@ -81,9 +90,13 @@ body::before{
     text-align:center;
 }
 
+/* =========================
+   🌦️ POČASIE (END)
+========================= */
+
 
 /* =========================
-   📋 EVENT
+   📋 EVENTY (BEGIN)
 ========================= */
 
 .event{
@@ -91,9 +104,13 @@ body::before{
     margin-top:-40px;
 }
 
+/* =========================
+   📋 EVENTY (END)
+========================= */
+
 
 /* =========================
-   📱 MENU
+   📱 MENU (BEGIN)
 ========================= */
 
 .cards{
@@ -106,9 +123,13 @@ body::before{
     padding:20px 0;
 }
 
+/* =========================
+   📱 MENU (END)
+========================= */
+
 
 /* =========================
-   🌿 FLÓRA – ŠTÝLY
+   🌿 FLÓRA – ŠTÝLY (BEGIN)
 ========================= */
 
 #floraGrid{
@@ -132,7 +153,6 @@ body::before{
 .progress{
     height:6px;
     background:#333;
-    border-radius:10px;
 }
 
 .bar{
@@ -140,20 +160,24 @@ body::before{
     background:lime;
 }
 
+/* =========================
+   🌿 FLÓRA – ŠTÝLY (END)
+========================= */
+
 </style>
 </head>
 
 <body>
 
 <!-- =========================
-     🏠 DOMOV
+     🏠 DOMOV (BEGIN)
 ========================= -->
 
 <div class="main">
 
     <div>
         <div id="clock"></div>
-        <div id="date"></div>
+        <div id="date-sk"></div>
     </div>
 
     <div>
@@ -164,54 +188,74 @@ body::before{
 
 </div>
 
+<!-- =========================
+     🏠 DOMOV (END)
+========================= -->
+
 
 <!-- =========================
-     📋 EVENTY
+     📋 EVENTY (BEGIN)
 ========================= -->
 
 <div class="event" id="event">Načítavam...</div>
 
+<!-- =========================
+     📋 EVENTY (END)
+========================= -->
+
 
 <!-- =========================
-     🌿 FLÓRA
+     🌿 FLÓRA (BEGIN)
 ========================= -->
 
 <section id="flora" style="display:none;">
     <div id="floraGrid"></div>
 </section>
 
+<!-- =========================
+     🌿 FLÓRA (END)
+========================= -->
+
 
 <!-- =========================
-     📱 MENU
+     📱 MENU (BEGIN)
 ========================= -->
 
 <div class="cards">
-    <div>🏠<br>DOMOV</div>
+    <div onclick="showHome()">🏠<br>DOMOV</div>
     <div onclick="showFlora()">🌿<br>FLÓRA</div>
 </div>
+
+<!-- =========================
+     📱 MENU (END)
+========================= -->
 
 
 <script>
 
 /* =========================
-   ⏰ HODINY
+   ⏰ HODINY (BEGIN)
 ========================= */
 
 function updateClock(){
     const now = new Date();
-    clock.innerHTML =
+    document.getElementById("clock").innerHTML =
         now.getHours().toString().padStart(2,'0') + ":" +
         now.getMinutes().toString().padStart(2,'0');
 
-    date.innerHTML =
+    document.getElementById("date-sk").innerHTML =
         now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
 }
 setInterval(updateClock,1000);
 updateClock();
 
+/* =========================
+   ⏰ HODINY (END)
+========================= */
+
 
 /* =========================
-   🌦️ POČASIE
+   🌦️ POČASIE (BEGIN)
 ========================= */
 
 async function loadWeather(){
@@ -219,20 +263,24 @@ async function loadWeather(){
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.15&longitude=17.11&current_weather=true");
         const data = await res.json();
 
-        temp.innerHTML = data.current_weather.temperature + "°";
+        document.getElementById("temp").innerHTML = data.current_weather.temperature + "°";
 
-        icon.src = "icons/sun.png";
-        desc.innerHTML = "Počasie";
+        document.getElementById("icon").src = "icons/sun.png";
+        document.getElementById("desc").innerHTML = "Počasie";
 
     }catch{
-        desc.innerHTML="Chyba";
+        document.getElementById("desc").innerHTML="Chyba";
     }
 }
 loadWeather();
 
+/* =========================
+   🌦️ POČASIE (END)
+========================= */
+
 
 /* =========================
-   📋 EVENTY
+   📋 EVENTY (BEGIN)
 ========================= */
 
 const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
@@ -244,7 +292,7 @@ async function loadEvents(){
         let txt = await res.text();
         let json = JSON.parse(txt.substring(47).slice(0,-2));
 
-        let now = new Date();
+        let today = new Date();
         let found = null;
 
         json.table.rows.forEach(r=>{
@@ -256,7 +304,6 @@ async function loadEvents(){
             if(cell?.v?.startsWith("Date(")){
                 let parts = cell.v.match(/\d+/g);
                 let y = +parts[0], m = +parts[1], d = +parts[2];
-                let today = new Date();
 
                 isToday =
                     d === today.getDate() &&
@@ -272,19 +319,23 @@ async function loadEvents(){
             found = {auto,note};
         });
 
-        event.innerHTML = found
+        document.getElementById("event").innerHTML = found
             ? `✨ ${found.note}<br>(${found.auto})`
             : "✨ nič dnes";
 
     }catch{
-        event.innerHTML="❌ chyba";
+        document.getElementById("event").innerHTML="❌ chyba";
     }
 }
 loadEvents();
 
+/* =========================
+   📋 EVENTY (END)
+========================= */
+
 
 /* =========================
-   🌿 FLÓRA – DATA
+   🌿 FLÓRA – DATA (BEGIN)
 ========================= */
 
 const plantLibrary = {
@@ -302,9 +353,13 @@ let plants = [
   }
 ];
 
+/* =========================
+   🌿 FLÓRA – DATA (END)
+========================= */
+
 
 /* =========================
-   🌿 FLÓRA – LOGIKA
+   🌿 FLÓRA – LOGIKA (BEGIN)
 ========================= */
 
 function getPlantStatus(p){
@@ -318,13 +373,17 @@ function getPlantStatus(p){
   return {status,progress:Math.min(progress,1)};
 }
 
+/* =========================
+   🌿 FLÓRA – LOGIKA (END)
+========================= */
+
 
 /* =========================
-   🌿 FLÓRA – RENDER
+   🌿 FLÓRA – RENDER (BEGIN)
 ========================= */
 
 function renderPlants(){
-  floraGrid.innerHTML="";
+  document.getElementById("floraGrid").innerHTML="";
 
   plants.forEach(p=>{
     let {status,progress}=getPlantStatus(p);
@@ -342,13 +401,17 @@ function renderPlants(){
 
     card.onclick=()=>waterPlant(p.id);
 
-    floraGrid.appendChild(card);
+    document.getElementById("floraGrid").appendChild(card);
   });
 }
 
+/* =========================
+   🌿 FLÓRA – RENDER (END)
+========================= */
+
 
 /* =========================
-   🌿 FLÓRA – AKCIE
+   🌿 FLÓRA – AKCIE (BEGIN)
 ========================= */
 
 function waterPlant(id){
@@ -357,18 +420,33 @@ function waterPlant(id){
   renderPlants();
 }
 
+/* =========================
+   🌿 FLÓRA – AKCIE (END)
+========================= */
+
 
 /* =========================
-   🔁 NAVIGÁCIA
+   🔁 NAVIGÁCIA (BEGIN)
 ========================= */
 
 function showFlora(){
   document.querySelector(".main").style.display="none";
-  event.style.display="none";
+  document.getElementById("event").style.display="none";
 
-  flora.style.display="block";
+  document.getElementById("flora").style.display="block";
   renderPlants();
 }
+
+function showHome(){
+  document.querySelector(".main").style.display="flex";
+  document.getElementById("event").style.display="block";
+
+  document.getElementById("flora").style.display="none";
+}
+
+/* =========================
+   🔁 NAVIGÁCIA (END)
+========================= */
 
 </script>
 
