@@ -42,12 +42,13 @@ body::before{
     justify-content:space-between;
     align-items:center;
     height:70vh;
-    padding:0 8vw;
+    padding:0 5vw;
+    gap:50px;
 }
 
 
 /* =========================
-   ⏰ HODINY – ŠTÝL
+   ⏰ HODINY
 ========================= */
 
 #clock{
@@ -61,7 +62,7 @@ body::before{
 
 
 /* =========================
-   🌦️ POČASIE – VEĽKÉ
+   🌦️ POČASIE
 ========================= */
 
 .weather-icon{
@@ -73,31 +74,26 @@ body::before{
 
 #temp{
     font-size: clamp(40px, 6vw, 100px);
-    font-weight: 700;
-    text-align: center;
-    margin-top: 10px;
+    text-align:center;
 }
 
 #desc{
-    font-size: clamp(20px, 3vw, 40px);
-    opacity: 0.8;
-    text-align: center;
+    text-align:center;
 }
 
 
 /* =========================
-   📋 EVENT – ŠTÝL
+   📋 EVENT
 ========================= */
 
 .event{
     text-align:center;
     margin-top:-40px;
-    opacity:0.8;
 }
 
 
 /* =========================
-   📱 MENU – KARTY
+   📱 MENU
 ========================= */
 
 .cards{
@@ -109,201 +105,134 @@ body::before{
     background:rgba(20,20,20,0.9);
     padding:20px 0;
 }
+
+
 /* =========================
-   📺 RESPONSIVE – VEĽKÉ OBRAZOVKY
+   🌿 FLÓRA – ŠTÝLY
 ========================= */
 
-@media (min-width: 1200px){
-
- .main{
+#floraGrid{
     display:flex;
-    justify-content:space-between;
-    align-items:center;
-    height:70vh;
-    padding:0 5vw;
-    gap:50px;
+    flex-wrap:wrap;
+    gap:15px;
+    padding:20px;
 }
-.main > div:last-child{
-    transform: scale(1.4);
+
+.plant-card{
+    width:200px;
+    background:#111;
+    border-radius:16px;
+    padding:12px;
 }
-/* =========================
-   🌦️ POČASIE – POSUN DOĽAVA
-========================= */
 
-.main > div:last-child{
-    transform: translateX(-300px);
+.plant-card.good{ box-shadow:0 0 10px green; }
+.plant-card.warning{ box-shadow:0 0 10px orange; }
+.plant-card.danger{ box-shadow:0 0 10px red; }
+
+.progress{
+    height:6px;
+    background:#333;
+    border-radius:10px;
 }
-  .weather-icon{
-    width: 220px;
-  }
 
-  #temp{
-    font-size: 40px;
-  }
-
-  .event{
-    font-size: 22px;
-  }
-
-  .cards{
-    padding: 30px 0;
-    font-size: 20px;
-  }
-
+.bar{
+    height:100%;
+    background:lime;
 }
+
 </style>
 </head>
 
 <body>
 
-
 <!-- =========================
-     🧱 LAYOUT – HLAVNÝ OBAL
+     🏠 DOMOV
 ========================= -->
 
-<div id="app">
+<div class="main">
 
-    <!-- =========================
-         🏠 DOMOV (HLAVNÁ OBRAZOVKA)
-    ========================= -->
-
-    <div class="main">
-
-        <div>
-            <div id="clock">00:00</div>
-            <div id="date">--</div>
-        </div>
-
-        <div>
-            <img id="icon" src="icons/sun.png" class="weather-icon">
-            <div id="temp">--°</div>
-            <div id="desc">Načítavam...</div>
-        </div>
-
+    <div>
+        <div id="clock"></div>
+        <div id="date"></div>
     </div>
 
-
-    <!-- =========================
-         📋 EVENTY
-    ========================= -->
-
-    <div class="event" id="event">
-    ✨ Načítavam...
-    </div>
-
-
-    <!-- =========================
-         📱 NAVIGÁCIA
-    ========================= -->
-
-    <div class="cards">
-        <div>🏠<br>DOMOV</div>
-        <div>🎵<br>MÉDIÁ</div>
-        <div>📱<br>DOM</div>
-        <div>🌿<br>FLÓRA</div>
-        <div>🌦️<br>POČASIE</div>
-        <div>📋<br>TABUĽKA</div>
+    <div>
+        <img id="icon" class="weather-icon">
+        <div id="temp"></div>
+        <div id="desc"></div>
     </div>
 
 </div>
 
 
 <!-- =========================
-     🧠 SCRIPT – MOZOG APPKY
+     📋 EVENTY
 ========================= -->
+
+<div class="event" id="event">Načítavam...</div>
+
+
+<!-- =========================
+     🌿 FLÓRA
+========================= -->
+
+<section id="flora" style="display:none;">
+    <div id="floraGrid"></div>
+</section>
+
+
+<!-- =========================
+     📱 MENU
+========================= -->
+
+<div class="cards">
+    <div>🏠<br>DOMOV</div>
+    <div onclick="showFlora()">🌿<br>FLÓRA</div>
+</div>
+
 
 <script>
 
 /* =========================
-   ⏰ HODINY – LOGIKA
+   ⏰ HODINY
 ========================= */
 
 function updateClock(){
     const now = new Date();
-
-    document.getElementById("clock").innerHTML =
+    clock.innerHTML =
         now.getHours().toString().padStart(2,'0') + ":" +
         now.getMinutes().toString().padStart(2,'0');
 
-    document.getElementById("date").innerHTML =
-        now.toLocaleDateString('sk-SK',{
-            weekday:'long',
-            day:'numeric',
-            month:'long'
-        });
+    date.innerHTML =
+        now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
 }
-
 setInterval(updateClock,1000);
 updateClock();
 
 
 /* =========================
-   🌙 DEŇ / NOC
+   🌦️ POČASIE
 ========================= */
-
-function isNight(){
-    const h = new Date().getHours();
-    return (h >= 20 || h < 6);
-}
-
-
-/* =========================
-   🌦️ POČASIE – MAPA
-========================= */
-
-const weatherMap = {
-    clear:{day:"sun.png",night:"clear-night.png",text:"Jasno"},
-    cloudy:{day:"cloud.png",night:"cloudy-night.png",text:"Oblačno"},
-    partly:{day:"cloud.png",night:"partly-night.png",text:"Polooblačno"},
-    rain:{day:"rain.png",night:"rain-night.png",text:"Dážď"},
-    storm:{day:"storm.png",night:"storm-night.png",text:"Búrka"},
-    snow:{day:"snow.png",night:"snow.png",text:"Sneh"}
-};
-
-
-/* =========================
-   🌦️ POČASIE – LOGIKA
-========================= */
-
-function setWeather(type){
-    const icon = document.getElementById("icon");
-    const desc = document.getElementById("desc");
-
-    const data = weatherMap[type];
-    if(!data) return;
-
-    icon.src = "icons/" + (isNight()?data.night:data.day);
-    desc.innerHTML = data.text;
-}
 
 async function loadWeather(){
     try{
         const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.15&longitude=17.11&current_weather=true");
         const data = await res.json();
 
-        const temp = data.current_weather.temperature;
-        const code = data.current_weather.weathercode;
+        temp.innerHTML = data.current_weather.temperature + "°";
 
-        document.getElementById("temp").innerHTML = temp + "°";
+        icon.src = "icons/sun.png";
+        desc.innerHTML = "Počasie";
 
-        if(code===0) setWeather("clear");
-        else if(code==1||code==2) setWeather("partly");
-        else if(code==3) setWeather("cloudy");
-        else if(code<=67) setWeather("rain");
-        else if(code<=77) setWeather("snow");
-        else if(code>=95) setWeather("storm");
-
-    }catch(e){
-        document.getElementById("desc").innerHTML="Chyba počasia";
+    }catch{
+        desc.innerHTML="Chyba";
     }
 }
-
 loadWeather();
-setInterval(loadWeather,600000);
 
 
 /* =========================
-   📋 EVENTY – GOOGLE SHEETS (GVIZ FIX)
+   📋 EVENTY
 ========================= */
 
 const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
@@ -313,8 +242,6 @@ async function loadEvents(){
     try{
         let res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`);
         let txt = await res.text();
-
-        // odstráni Google wrapper
         let json = JSON.parse(txt.substring(47).slice(0,-2));
 
         let now = new Date();
@@ -323,63 +250,125 @@ async function loadEvents(){
         json.table.rows.forEach(r=>{
             if(!r.c) return;
 
-            let val = r.c[1]?.f || r.c[1]?.v || "";
+            let cell = r.c[1];
+            let isToday = false;
 
-           let cell = r.c[1];
-let isToday = false;
+            if(cell?.v?.startsWith("Date(")){
+                let parts = cell.v.match(/\d+/g);
+                let y = +parts[0], m = +parts[1], d = +parts[2];
+                let today = new Date();
 
-if(cell && cell.v && typeof cell.v === "string" && cell.v.startsWith("Date(")){
-
-    let parts = cell.v.match(/\d+/g);
-
-    if(parts){
-        let y = parseInt(parts[0]);
-        let m = parseInt(parts[1]);
-        let d = parseInt(parts[2]);
-
-        let today = new Date();
-
-        isToday =
-            d === today.getDate() &&
-            m === today.getMonth() &&
-            y === today.getFullYear();
-    }
-
-}else if(cell && cell.f){
-    let todayStr =
-        now.getDate() + "." +
-        (now.getMonth()+1) + "." +
-        now.getFullYear();
-
-    isToday = cell.f.includes(todayStr);
-}
+                isToday =
+                    d === today.getDate() &&
+                    m === today.getMonth() &&
+                    y === today.getFullYear();
+            }
 
             if(!isToday) return;
 
             let auto = r.c[2]?.v || "";
             let note = r.c[3]?.v || "";
 
-            found = {auto, note};
+            found = {auto,note};
         });
 
-        if(found){
-            document.getElementById("event").innerHTML =
-                "✨ " + (found.note || "Bez poznámky") +
-                "<br>(" + (found.auto || "") + ")";
-        }else{
-            document.getElementById("event").innerHTML =
-                "✨ Žiadne udalosti dnes";
-        }
+        event.innerHTML = found
+            ? `✨ ${found.note}<br>(${found.auto})`
+            : "✨ nič dnes";
 
-    }catch(e){
-        console.log("EVENT ERROR:", e);
-        document.getElementById("event").innerHTML =
-            "❌ Chyba načítania";
+    }catch{
+        event.innerHTML="❌ chyba";
     }
 }
-
 loadEvents();
-setInterval(loadEvents,300000);
+
+
+/* =========================
+   🌿 FLÓRA – DATA
+========================= */
+
+const plantLibrary = {
+  mint: { interval: 3 },
+  rosemary: { interval: 7 }
+};
+
+let plants = [
+  {
+    id:1,
+    type:"mint",
+    name:"Mäta",
+    location:"Balkón",
+    lastWatered:Date.now()-2*86400000
+  }
+];
+
+
+/* =========================
+   🌿 FLÓRA – LOGIKA
+========================= */
+
+function getPlantStatus(p){
+  let days = (Date.now()-p.lastWatered)/86400000;
+  let progress = days / plantLibrary[p.type].interval;
+
+  let status="good";
+  if(progress>=1) status="danger";
+  else if(progress>=0.7) status="warning";
+
+  return {status,progress:Math.min(progress,1)};
+}
+
+
+/* =========================
+   🌿 FLÓRA – RENDER
+========================= */
+
+function renderPlants(){
+  floraGrid.innerHTML="";
+
+  plants.forEach(p=>{
+    let {status,progress}=getPlantStatus(p);
+
+    let card=document.createElement("div");
+    card.className="plant-card "+status;
+
+    card.innerHTML=`
+      <h3>${p.name}</h3>
+      <p>${p.location}</p>
+      <div class="progress">
+        <div class="bar" style="width:${progress*100}%"></div>
+      </div>
+    `;
+
+    card.onclick=()=>waterPlant(p.id);
+
+    floraGrid.appendChild(card);
+  });
+}
+
+
+/* =========================
+   🌿 FLÓRA – AKCIE
+========================= */
+
+function waterPlant(id){
+  let p=plants.find(x=>x.id===id);
+  p.lastWatered=Date.now();
+  renderPlants();
+}
+
+
+/* =========================
+   🔁 NAVIGÁCIA
+========================= */
+
+function showFlora(){
+  document.querySelector(".main").style.display="none";
+  event.style.display="none";
+
+  flora.style.display="block";
+  renderPlants();
+}
 
 </script>
 
