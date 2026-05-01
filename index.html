@@ -10,7 +10,8 @@ body{
     margin:0;
     background:#000;
     color:#fff;
-    font-family:Arial;
+    font-family:Arial, sans-serif;
+    overflow-x: hidden;
 }
 
 body::before{
@@ -23,6 +24,7 @@ body::before{
     border-radius:50%;
     background:radial-gradient(circle, #0b2a4a 0%, transparent 70%);
     opacity:0.6;
+    z-index: -1;
 }
 
 .main{
@@ -33,12 +35,34 @@ body::before{
     padding:0 5vw;
 }
 
-#clock{font-size:120px;}
-#date-sk{opacity:0.7;}
+#clock{font-size:120px; font-weight: bold;}
+#date-sk{opacity:0.7; font-size: 24px; text-transform: capitalize;}
+
+.weather-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
 .weather-icon{width:250px;}
 
-.event{text-align:center;}
+#temp {
+    font-size: 80px; 
+    margin-top: -20px; 
+    font-weight: bold;
+}
+
+#desc {
+    font-size: 20px;
+    opacity: 0.8;
+}
+
+.event{
+    text-align:center;
+    padding: 0 20px;
+    font-size: 28px;
+}
 
 .cards{
     position:fixed;
@@ -48,6 +72,12 @@ body::before{
     justify-content:space-around;
     background:#111;
     padding:15px;
+    border-top: 1px solid #333;
+}
+
+.cards div {
+    font-size: 30px;
+    cursor: pointer;
 }
 
 #floraGrid{
@@ -55,22 +85,14 @@ body::before{
     gap:20px;
     padding:20px;
 }
-    /* Container pre počasie, aby bolo všetko pod sebou a v strede */
-.weather-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
 
-#temp {
-    font-size: 80px; /* Zväčšenie písma teploty */
-    margin-top: -20px; /* Posunutie bližšie k ikone */
-}
-
-#desc {
-    font-size: 20px;
-    opacity: 0.8;
+button {
+    padding: 10px 20px;
+    background: #222;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 5px;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -80,11 +102,10 @@ body::before{
 <!-- DOMOV -->
 <div class="main">
     <div>
-        <div id="clock"></div>
-        <div id="date-sk"></div>
+        <div id="clock">00:00</div>
+        <div id="date-sk">Načítavam dátum...</div>
     </div>
 
-    <!-- Upravená časť pre počasie -->
     <div class="weather-container">
         <img id="icon" src="icons/sun.png" class="weather-icon">
         <div id="temp">--°</div>
@@ -92,11 +113,12 @@ body::before{
     </div>
 </div>
 
-<div class="event" id="event">Načítavam...</div>
+<div class="event" id="event">Načítavam oznamy...</div>
 
 <!-- FLÓRA -->
 <section id="flora" style="display:none;">
-    <div style="padding:20px;">
+    <div style="padding:20px; text-align: center;">
+        <h2>🌿 Moja flóra</h2>
         <button onclick="addPlant()">+ Pridať rastlinu</button>
     </div>
     <div id="floraGrid"></div>
@@ -109,6 +131,8 @@ body::before{
 </div>
 
 <script>
+const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
+const gid = '602623609';
 
 /* ⏰ HODINY */
 function updateClock(){
@@ -120,8 +144,6 @@ function updateClock(){
     document.getElementById("date-sk").innerHTML =
         now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
 }
-setInterval(updateClock,1000);
-updateClock();
 
 /* 🌙 DEN/NOC */
 function isNight(){
@@ -144,38 +166,29 @@ function setWeather(type){
   icon.src = "icons/" + (isNight()?data.night:data.day);
 }
 
-/* 🌦️ POČASIE – OPRAVENÉ */
+/* 🌦️ POČASIE */
 function loadWeather(){
     fetch("https://api.open-meteo.com/v1/forecast?latitude=48.15&longitude=17.11&current=temperature_2m,weather_code")
     .then(res => res.json())
     .then(data => {
-
-        document.getElementById("temp").innerHTML =
-            Math.round(data.current.temperature_2m) + "°";
-
+        document.getElementById("temp").innerHTML = Math.round(data.current.temperature_2m) + "°";
         let code = data.current.weather_code;
 
         if(code === 0) setWeather("clear");
         else if(code <= 3) setWeather("cloudy");
         else if(code <= 67) setWeather("rain");
         else if(code <= 77) setWeather("snow");
-
     })
     .catch(()=>{
         document.getElementById("desc").innerHTML="Chyba počasia";
     });
 }
-loadWeather();
 
-/* 📋 SHEETS – FUNKČNÉ */
-const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
-const gid = '602623609';
-/* 📋 FINÁLNA VERZIA OZNAMOV */
+/* 📋 OZNAMY Z GOOGLE SHEETS */
 function loadEvents(){
     fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`)
     .then(res => res.text())
     .then(txt => {
-        // Spracovanie surového textu z Google Sheets do JSON formátu
         let json = JSON.parse(txt.substring(47).slice(0,-2));
         let now = new Date();
         let html = "";
@@ -184,46 +197,63 @@ function loadEvents(){
         json.table.rows.forEach(r => {
             if(!r.c) return;
 
-            // Získanie hodnôt zo stĺpcov: B (Dátum), C (Meno/Auto), D (Text oznamu)
             let dateVal = r.c[1]?.f || r.c[1]?.v || "";
             let auto = r.c[2]?.v || "";
             let note = r.c[3]?.v || "";
 
-            // 1. KONTROLA: Ak je bunka s textom (stĺpec D) prázdna, riadok úplne preskoč
+            // Ignoruj úplne prázdne poznámky
             if (!note || note.toString().trim() === "") return;
 
-            // 2. KONTROLA DÁTUMU: Či sa dátum v tabuľke zhoduje s dneškom
+            // Kontrola či je oznam na dnešný dátum
             let isToday = 
                 dateVal.includes(`Date(${now.getFullYear()},${now.getMonth()},${now.getDate()}`) || 
                 dateVal.includes(`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`);
 
             if(!isToday) return;
 
-            // Ak prešiel dátum aj text, ideme vykresľovať
             found++;
-
-            // Zátvorky s menom (auto) sa pridajú, len ak nie sú prázdne
             let subText = (auto && auto.toString().trim() !== "") 
                 ? `<br><small style="opacity:0.6; font-size: 0.7em;">(${auto})</small>` 
                 : "";
 
-            // Pridanie riadku do výsledného zoznamu
             html += `<div style="margin-bottom: 25px; line-height: 1.4;">
                         <span style="color: #ffeb3b;">✨</span> ${note}${subText}
                      </div>`;
         });
 
-        // Ak sa nič nenašlo, vypíše sa predvolený text
-        document.getElementById("event").innerHTML = 
-            found ? html : "<span style='opacity:0.5;'>✨ Žiadne udalosti dnes</span>";
-
+        document.getElementById("event").innerHTML = found ? html : "<span style='opacity:0.5;'>✨ Žiadne udalosti dnes</span>";
     })
     .catch(err => {
         console.error("Chyba Sheets:", err);
-        document.getElementById("event").innerHTML = "❌ Chyba spojenia s tabuľkou";
+        document.getElementById("event").innerHTML = "❌ Chyba načítania";
     });
 }
 
+/* 🔁 NAVIGÁCIA */
+function showFlora(){
+  document.querySelector(".main").style.display="none";
+  document.getElementById("event").style.display="none";
+  document.getElementById("flora").style.display="block";
+}
+
+function showHome(){
+  document.querySelector(".main").style.display="flex";
+  document.getElementById("event").style.display="block";
+  document.getElementById("flora").style.display="none";
+}
+
+function addPlant(){
+  alert("Funkcia pridania rastliny bude čoskoro!");
+}
+
+/* 🚀 SPUSTENIE A INTERVALY */
+updateClock();
+loadWeather();
+loadEvents();
+
+setInterval(updateClock, 1000);      // Hodiny každú sekundu
+setInterval(loadWeather, 600000);   // Počasie každých 10 minút
+setInterval(loadEvents, 60000);     // Oznamy každú minútu
 
 </script>
 
