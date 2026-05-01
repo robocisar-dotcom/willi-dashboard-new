@@ -6,7 +6,50 @@
 <title>WILLI Smart Dashboard</title>
 
 <style>
-/* ZÁKLADNÉ NASTAVENIA - TVOJE PÔVODNÉ */
+.flora-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.plant-card {
+    background: rgba(15, 15, 15, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.plant-img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.8));
+}
+
+.plant-title { font-size: 1.2rem; font-weight: bold; margin: 0; }
+.plant-loc { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin: 5px 0 15px 0; }
+
+.status-text { font-size: 0.8rem; margin-bottom: 5px; display: block; }
+.status-container {
+    height: 6px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.status-bar { height: 100%; transition: width 0.5s ease; }
+
+.add-btn {
+    background: #fff; color: #000; border: none; padding: 12px 25px;
+    border-radius: 50px; font-weight: bold; cursor: pointer; margin-bottom: 30px;
+}
+    /* ZÁKLADNÉ NASTAVENIA - TVOJE PÔVODNÉ */
 :root {
     --bg-color: #000;
     --accent-blue: #0b2a4a;
@@ -129,11 +172,18 @@ body::before {
 }
 
 /* FLÓRA GRID - ABY VYZERALA DOBRE */
-#flora {
-    padding: 20px;
-    padding-bottom: 100px;
-    text-align: center;
-}
+<section id="flora" style="display:none;">
+    <div style="padding: 40px 20px; text-align: center;">
+        <h1 style="font-size: 3rem; margin-bottom: 5px;">🌿 Moja Flóra</h1>
+        <p style="opacity: 0.6; margin-bottom: 30px;">Správa tvojich domácich rastlín</p>
+        
+        <button class="add-btn" onclick="addPlant()">+ Pridať rastlinu</button>
+        
+        <div id="floraGrid" class="flora-grid">
+            <!-- Tu sa vygenerujú karty -->
+        </div>
+    </div>
+</section>
 
 .flora-grid {
     display: grid;
