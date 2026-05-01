@@ -207,7 +207,18 @@ function showHome(){
 
 /* 🌿 BUTTON */
 function addPlant(){
-  alert("fungujem 💥");
+  let name = prompt("Názov rastliny?");
+  if(!name) return;
+
+  let plants = JSON.parse(localStorage.getItem("plants")) || [];
+
+  plants.push({
+    name: name
+  });
+
+  localStorage.setItem("plants", JSON.stringify(plants));
+
+  renderPlants();
 }
 
 </script>
