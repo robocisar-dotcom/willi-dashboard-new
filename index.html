@@ -143,87 +143,109 @@ body::before{
 </div>
 
 <script>
-
-/* ⏰ HODINY */
+/* =========================
+   ⏰ HODINY
+========================= */
 function updateClock(){
-    const now = new Date();
-    document.getElementById("clock").innerHTML =
-        now.getHours().toString().padStart(2,'0') + ":" +
-        now.getMinutes().toString().padStart(2,'0');
+  let now = new Date();
+  document.getElementById("clock").innerHTML =
+    now.getHours().toString().padStart(2,'0') + ":" +
+    now.getMinutes().toString().padStart(2,'0');
 
-    document.getElementById("date-sk").innerHTML =
-        now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById("date-sk").innerHTML =
+    now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
 }
 setInterval(updateClock,1000);
 updateClock();
 
-/* 🔁 NAVIGÁCIA */
+/* =========================
+   🌦️ POČASIE
+========================= */
+async function updateWeather(){
+  try{
+    let res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.3775&longitude=17.5883&current=temperature_2m,weather_code');
+    let data = await res.json();
+
+    document.getElementById('temp').innerText = Math.round(data.current.temperature_2m) + "°C";
+
+    let code = data.current.weather_code;
+    let icon = "☀️";
+
+    if(code <= 3) icon = "🌤️";
+    else if(code < 50) icon = "☁️";
+    else if(code < 70) icon = "🌧️";
+    else icon = "❄️";
+
+    document.getElementById('icon').innerText = icon;
+
+  }catch(e){
+    document.getElementById('temp').innerText = "ERR";
+  }
+}
+updateWeather();
+
+/* =========================
+   📋 EVENTY
+========================= */
+const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
+const gid = '602623609';
+
+async function updateAgenda(){
+  try{
+    let res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`);
+    let txt = await res.text();
+    let json = JSON.parse(txt.substring(47).slice(0,-2));
+
+    let now = new Date();
+    let html = "";
+    let found = 0;
+
+    json.table.rows.forEach(r=>{
+      if(!r.c) return;
+
+      let val = r.c[1]?.f || r.c[1]?.v || "";
+
+      let isToday =
+        val.includes(`Date(${now.getFullYear()},${now.getMonth()},${now.getDate()}`) ||
+        val.includes(`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`);
+
+      if(!isToday) return;
+
+      let C = r.c[2]?.v || "";
+      let D = r.c[3]?.v || "";
+
+      html += `<div>⭐ ${D || C}</div>`;
+      found++;
+    });
+
+    document.getElementById("event").innerHTML = found ? html : "✨ nič na dnes";
+
+  }catch(e){
+    document.getElementById("event").innerHTML = "❌ chyba";
+  }
+}
+updateAgenda();
+
+/* =========================
+   🔁 NAVIGÁCIA
+========================= */
 function showFlora(){
-    document.querySelector(".main").style.display="none";
-    document.getElementById("event").style.display="none";
-    document.getElementById("flora").style.display="block";
-    renderPlants();
+  document.querySelector(".main").style.display="none";
+  document.getElementById("event").style.display="none";
+  document.getElementById("flora").style.display="block";
 }
 
 function showHome(){
-    document.querySelector(".main").style.display="flex";
-    document.getElementById("event").style.display="block";
-    document.getElementById("flora").style.display="none";
+  document.querySelector(".main").style.display="flex";
+  document.getElementById("event").style.display="block";
+  document.getElementById("flora").style.display="none";
 }
 
-/* 🌿 DATA */
-const plantLibrary = {
-  mint:{interval:3}
-};
-
-let plants = [
-  {
-    id:1,
-    type:"mint",
-    name:"Mäta",
-    location:"Balkón",
-    lastWatered:Date.now()-2*86400000
-  }
-];
-
-/* 🌿 RENDER */
-function renderPlants(){
-    const grid = document.getElementById("floraGrid");
-    grid.innerHTML="";
-
-    plants.forEach(p=>{
-        let days = (Date.now()-p.lastWatered)/86400000;
-        let progress = days / plantLibrary[p.type].interval;
-
-        let div=document.createElement("div");
-        div.className="plant-card";
-
-        div.innerHTML=`
-            <h3>${p.name}</h3>
-            <p>${p.location}</p>
-            <div class="progress">
-                <div class="bar" style="width:${progress*100}%"></div>
-            </div>
-        `;
-
-        grid.appendChild(div);
-    });
-}
-
-/* 🌿 ADD */
+/* =========================
+   🌿 TLAČIDLO TEST
+========================= */
 function addPlant(){
-    let name = prompt("Názov?");
-    if(!name) return;
-
-    plants.push({
-        id: Date.now(),
-        type:"mint",
-        name:name,
-        location:"Dom",
-        lastWatered:Date.now()
-    });
-
-    renderPlants();
+  alert("fungujem 💥");
 }
 
 </script>
