@@ -474,7 +474,37 @@ function showHome(){
 /* =========================
    🔁 NAVIGÁCIA (END)
 ========================= */
+/* =========================
+   🌿 ADD PLANT (BEGIN)
+========================= */
 
+function addPlant(){
+
+  let name = prompt("Názov rastliny?");
+  if(!name) return;
+
+  let type = prompt("Typ (mint / rosemary)?");
+  if(!plantLibrary[type]){
+    alert("Použi mint alebo rosemary");
+    return;
+  }
+
+  let location = prompt("Miesto?");
+
+  plants.push({
+    id: Date.now(),
+    type: type,
+    name: name,
+    location: location,
+    lastWatered: Date.now()
+  });
+
+  renderPlants();
+}
+
+/* =========================
+   🌿 ADD PLANT (END)
+========================= */
 </script>
 
 </body>
