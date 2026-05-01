@@ -55,6 +55,23 @@ body::before{
     gap:20px;
     padding:20px;
 }
+    /* Container pre počasie, aby bolo všetko pod sebou a v strede */
+.weather-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#temp {
+    font-size: 80px; /* Zväčšenie písma teploty */
+    margin-top: -20px; /* Posunutie bližšie k ikone */
+}
+
+#desc {
+    font-size: 20px;
+    opacity: 0.8;
+}
 </style>
 </head>
 
@@ -67,9 +84,10 @@ body::before{
         <div id="date-sk"></div>
     </div>
 
-    <div>
+    <!-- Upravená časť pre počasie -->
+    <div class="weather-container">
         <img id="icon" src="icons/sun.png" class="weather-icon">
-        <div id="temp"></div>
+        <div id="temp">--°</div>
         <div id="desc"></div>
     </div>
 </div>
