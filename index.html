@@ -6,18 +6,14 @@
 <title>WILLI</title>
 
 <style>
-
-/* =========================
-   🎨 ZÁKLAD
-========================= */
 body{
     margin:0;
     background:#000;
     color:#fff;
-    font-family:Arial, sans-serif;
+    font-family:Arial;
 }
 
-/* pozadie */
+/* POZADIE */
 body::before{
     content:"";
     position:absolute;
@@ -30,9 +26,7 @@ body::before{
     opacity:0.6;
 }
 
-/* =========================
-   🧱 LAYOUT
-========================= */
+/* LAYOUT */
 .main{
     display:flex;
     justify-content:space-between;
@@ -41,36 +35,21 @@ body::before{
     padding:0 5vw;
 }
 
-/* =========================
-   ⏰ HODINY
-========================= */
-#clock{
-    font-size:120px;
-}
-#date-sk{
-    opacity:0.7;
-}
+/* HODINY */
+#clock{font-size:120px;}
+#date-sk{opacity:0.7;}
 
-/* =========================
-   🌦️ POČASIE
-========================= */
+/* POČASIE */
 .weather-icon{
     width:250px;
 }
-#temp{
-    font-size:50px;
-}
 
-/* =========================
-   📋 EVENT
-========================= */
+/* EVENT */
 .event{
     text-align:center;
 }
 
-/* =========================
-   📱 MENU
-========================= */
+/* MENU */
 .cards{
     position:fixed;
     bottom:0;
@@ -81,32 +60,17 @@ body::before{
     padding:15px;
 }
 
-/* =========================
-   🌿 FLÓRA
-========================= */
+/* FLORA */
 #floraGrid{
     display:flex;
     gap:20px;
     padding:20px;
 }
-
 .plant-card{
     background:#111;
     padding:15px;
     border-radius:15px;
-    box-shadow:0 0 15px green;
 }
-
-.progress{
-    height:6px;
-    background:#333;
-}
-
-.bar{
-    height:100%;
-    background:lime;
-}
-
 </style>
 </head>
 
@@ -120,7 +84,7 @@ body::before{
     </div>
 
     <div>
-        <span id="icon" style="font-size:80px">☀️</span>
+        <img id="icon" src="icons/sun.png" class="weather-icon">
         <div id="temp"></div>
         <div id="desc"></div>
     </div>
@@ -128,7 +92,7 @@ body::before{
 
 <div class="event" id="event">Načítavam...</div>
 
-<!-- FLÓRA -->
+<!-- FLORA -->
 <section id="flora" style="display:none;">
     <div style="padding:20px;">
         <button onclick="addPlant()">+ Pridať rastlinu</button>
@@ -138,148 +102,127 @@ body::before{
 
 <!-- MENU -->
 <div class="cards">
-    <div onclick="showHome()">🏠<br>DOMOV</div>
-    <div onclick="showFlora()">🌿<br>FLÓRA</div>
+    <div onclick="showHome()">🏠</div>
+    <div onclick="showFlora()">🌿</div>
 </div>
 
 <script>
-/* =========================
-   ⏰ HODINY
-========================= */
-function updateClock(){
-  let now = new Date();
-  document.getElementById("clock").innerHTML =
-    now.getHours().toString().padStart(2,'0') + ":" +
-    now.getMinutes().toString().padStart(2,'0');
 
-  document.getElementById("date-sk").innerHTML =
-    now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
+/* HODINY */
+function updateClock(){
+    let now = new Date();
+    clock.innerHTML =
+        now.getHours().toString().padStart(2,'0') + ":" +
+        now.getMinutes().toString().padStart(2,'0');
+
+    date_sk.innerHTML =
+        now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
 }
 setInterval(updateClock,1000);
 updateClock();
 
-/* =========================
-   🌦️ POČASIE
-========================= */
-async function updateWeather(){
-  try{
-    let res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.3775&longitude=17.5883&current=temperature_2m,weather_code');
-    let data = await res.json();
-
-    document.getElementById('temp').innerText = Math.round(data.current.temperature_2m) + "°C";
-
-    let code = data.current.weather_code;
-    let icon = "☀️";
-
-    if(code <= 3) icon = "🌤️";
-    else if(code < 50) icon = "☁️";
-    else if(code < 70) icon = "🌧️";
-    else icon = "❄️";
-
-    document.getElementById('icon').innerText = icon;
-
-  }catch(e){
-    document.getElementById('temp').innerText = "ERR";
-  }
+/* DEN/NOC */
+function isNight(){
+    let h = new Date().getHours();
+    return (h >= 20 || h < 6);
 }
-updateWeather();
 
-/* =========================
-   📋 EVENTY
-========================= */
+/* IKONY */
+const weatherMap = {
+  clear:{day:"sun.png",night:"clear-night.png"},
+  cloudy:{day:"cloud.png",night:"cloudy-night.png"},
+  rain:{day:"rain.png",night:"rain-night.png"},
+  snow:{day:"snow.png",night:"snow.png"}
+};
+
+function setWeather(type){
+  let icon = document.getElementById("icon");
+  let data = weatherMap[type];
+  if(!data) return;
+  icon.src = "icons/" + (isNight()?data.night:data.day);
+}
+
+/* POCASIE */
+async function loadWeather(){
+    try{
+        let res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.15&longitude=17.11&current_weather=true");
+        let data = await res.json();
+
+        temp.innerHTML = data.current_weather.temperature + "°";
+
+        let code = data.current_weather.weathercode;
+
+        if(code===0) setWeather("clear");
+        else if(code<=3) setWeather("cloudy");
+        else if(code<=67) setWeather("rain");
+        else if(code<=77) setWeather("snow");
+
+    }catch(e){
+        desc.innerHTML="Chyba počasia";
+    }
+}
+loadWeather();
+
+/* EVENTS */
 const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
 const gid = '602623609';
 
-async function updateAgenda(){
-  try{
-    let res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`);
-    let txt = await res.text();
-    let json = JSON.parse(txt.substring(47).slice(0,-2));
+async function loadEvents(){
+    try{
+        let res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`);
+        let txt = await res.text();
+        let json = JSON.parse(txt.substring(47).slice(0,-2));
 
-    let now = new Date();
-    let html = "";
-    let found = 0;
+        let now = new Date();
+        let html = "";
+        let found = 0;
 
-    json.table.rows.forEach(r=>{
-      if(!r.c) return;
+        json.table.rows.forEach(r=>{
+            if(!r.c) return;
 
-      let val = r.c[1]?.f || r.c[1]?.v || "";
+            let val = r.c[1]?.f || r.c[1]?.v || "";
 
-      let isToday =
-        val.includes(`Date(${now.getFullYear()},${now.getMonth()},${now.getDate()}`) ||
-        val.includes(`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`);
+            let isToday =
+                val.includes(`Date(${now.getFullYear()},${now.getMonth()},${now.getDate()}`) ||
+                val.includes(`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`);
 
-      if(!isToday) return;
+            if(!isToday) return;
 
-      let C = r.c[2]?.v || "";
-      let D = r.c[3]?.v || "";
+            let C = r.c[2]?.v || "";
+            let D = r.c[3]?.v || "";
 
-      html += `<div>⭐ ${D || C}</div>`;
-      found++;
-    });
+            html += `<div>⭐ ${D || C}</div>`;
+            found++;
+        });
 
-    document.getElementById("event").innerHTML = found ? html : "✨ nič na dnes";
+        event.innerHTML = found ? html : "✨ nič na dnes";
 
-  }catch(e){
-    document.getElementById("event").innerHTML = "❌ chyba";
-  }
+    }catch(e){
+        event.innerHTML="❌ chyba";
+    }
 }
-updateAgenda();
+loadEvents();
 
-/* =========================
-   🔁 NAVIGÁCIA
-========================= */
+/* NAVIGACIA */
 function showFlora(){
   document.querySelector(".main").style.display="none";
-  document.getElementById("event").style.display="none";
-  document.getElementById("flora").style.display="block";
+  event.style.display="none";
+  flora.style.display="block";
 }
 
 function showHome(){
   document.querySelector(".main").style.display="flex";
-  document.getElementById("event").style.display="block";
-  document.getElementById("flora").style.display="none";
+  event.style.display="block";
+  flora.style.display="none";
 }
 
-/* =========================
-   🌿 TLAČIDLO TEST
-========================= */
+/* FLORA */
+let plants = [];
+
 function addPlant(){
-  alert("fungujem 💥");
+  alert("tlačidlo funguje 💥");
 }
-/* =========================
-   🔧 FIX – WEATHER + CLICK
-========================= */
 
-// počasie (emoji – bez obrázkov)
-async function updateWeather(){
-  try{
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.3775&longitude=17.5883&current=temperature_2m,weather_code');
-    const data = await res.json();
-
-    document.getElementById('temp').innerText =
-      Math.round(data.current.temperature_2m) + "°C";
-
-    let code = data.current.weather_code;
-    let icon = "☀️";
-
-    if(code <= 3) icon = "🌤️";
-    else if(code < 50) icon = "☁️";
-    else if(code < 70) icon = "🌧️";
-    else icon = "❄️";
-
-    document.getElementById('icon').innerText = icon;
-
-  }catch(e){
-    console.log("weather error", e);
-  }
-}
-updateWeather();
-
-// test tlačidla
-function addPlant(){
-  alert("tlačidlo žije 💥");
-}
 </script>
 
 </body>
