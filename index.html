@@ -258,208 +258,18 @@ body::before{
 
 
 <script>
-window.onload = function(){
-/* =========================
-   ⏰ HODINY (BEGIN)
-========================= */
 
-function updateClock(){
-    const now = new Date();
-    document.getElementById("clock").innerHTML =
-        now.getHours().toString().padStart(2,'0') + ":" +
-        now.getMinutes().toString().padStart(2,'0');
-
-    document.getElementById("date-sk").innerHTML =
-        now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
-}
-setInterval(updateClock,1000);
-updateClock();
+/* TEST – MUSÍ VYSKOČIŤ PRI NAČÍTANÍ */
+alert("JS beží");
 
 /* =========================
-   ⏰ HODINY (END)
-========================= */
-
-
-/* =========================
-   🌦️ POČASIE (BEGIN)
-========================= */
-
-async function loadWeather(){
-    try{
-        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.15&longitude=17.11&current_weather=true");
-        const data = await res.json();
-
-        document.getElementById("temp").innerHTML = data.current_weather.temperature + "°";
-
-        document.getElementById("icon").src = "icons/sun.png";
-        document.getElementById("desc").innerHTML = "Počasie";
-
-    }catch{
-        document.getElementById("desc").innerHTML="Chyba";
-    }
-}
-loadWeather();
-
-/* =========================
-   🌦️ POČASIE (END)
-========================= */
-
-
-/* =========================
-   📋 EVENTY (BEGIN)
-========================= */
-
-const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
-const gid = '602623609';
-
-async function loadEvents(){
-    try{
-        let res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`);
-        let txt = await res.text();
-        let json = JSON.parse(txt.substring(47).slice(0,-2));
-
-        let today = new Date();
-        let found = null;
-
-        json.table.rows.forEach(r=>{
-            if(!r.c) return;
-
-            let cell = r.c[1];
-            let isToday = false;
-
-            if(cell?.v?.startsWith("Date(")){
-                let parts = cell.v.match(/\d+/g);
-                let y = +parts[0], m = +parts[1], d = +parts[2];
-
-                isToday =
-                    d === today.getDate() &&
-                    m === today.getMonth() &&
-                    y === today.getFullYear();
-            }
-
-            if(!isToday) return;
-
-            let auto = r.c[2]?.v || "";
-            let note = r.c[3]?.v || "";
-
-            found = {auto,note};
-        });
-
-        document.getElementById("event").innerHTML = found
-            ? `✨ ${found.note}<br>(${found.auto})`
-            : "✨ nič dnes";
-
-    }catch{
-        document.getElementById("event").innerHTML="❌ chyba";
-    }
-}
-loadEvents();
-
-/* =========================
-   📋 EVENTY (END)
-========================= */
-
-
-/* =========================
-   🌿 FLÓRA – DATA (BEGIN)
-========================= */
-
-const plantLibrary = {
-  mint: { interval: 3 },
-  rosemary: { interval: 7 }
-};
-
-let plants = [
-  {
-    id:1,
-    type:"mint",
-    name:"Mäta",
-    location:"Balkón",
-    lastWatered:Date.now()-2*86400000
-  }
-];
-
-/* =========================
-   🌿 FLÓRA – DATA (END)
-========================= */
-
-
-/* =========================
-   🌿 FLÓRA – LOGIKA (BEGIN)
-========================= */
-
-function getPlantStatus(p){
-  let days = (Date.now()-p.lastWatered)/86400000;
-  let progress = days / plantLibrary[p.type].interval;
-
-  let status="good";
-  if(progress>=1) status="danger";
-  else if(progress>=0.7) status="warning";
-
-  return {status,progress:Math.min(progress,1)};
-}
-
-/* =========================
-   🌿 FLÓRA – LOGIKA (END)
-========================= */
-
-
-/* =========================
-   🌿 FLÓRA – RENDER (BEGIN)
-========================= */
-
-function renderPlants(){
-  document.getElementById("floraGrid").innerHTML="";
-
-  plants.forEach(p=>{
-    let {status,progress}=getPlantStatus(p);
-
-    let card=document.createElement("div");
-    card.className="plant-card "+status;
-
-    card.innerHTML=`
-      <h3>${p.name}</h3>
-      <p>${p.location}</p>
-      <div class="progress">
-        <div class="bar" style="width:${progress*100}%"></div>
-      </div>
-    `;
-
-    card.onclick=()=>waterPlant(p.id);
-
-    document.getElementById("floraGrid").appendChild(card);
-  });
-}
-
-/* =========================
-   🌿 FLÓRA – RENDER (END)
-========================= */
-
-
-/* =========================
-   🌿 FLÓRA – AKCIE (BEGIN)
-========================= */
-
-function waterPlant(id){
-  let p=plants.find(x=>x.id===id);
-  p.lastWatered=Date.now();
-  renderPlants();
-}
-
-/* =========================
-   🌿 FLÓRA – AKCIE (END)
-========================= */
-
-
-/* =========================
-   🔁 NAVIGÁCIA (BEGIN)
+   🔁 NAVIGÁCIA
 ========================= */
 
 function showFlora(){
   document.querySelector(".main").style.display="none";
   document.getElementById("event").style.display="none";
   document.getElementById("flora").style.display="block";
-  renderPlants();
 }
 
 function showHome(){
@@ -469,45 +279,13 @@ function showHome(){
 }
 
 /* =========================
-   🔁 NAVIGÁCIA (END)
-========================= */
-/* =========================
-   🌿 FLÓRA – PRIDAŤ RASTLINU (END)
-========================= */
-/* =========================
-   🔁 NAVIGÁCIA (END)
-========================= */
-/* =========================
-   🌿 ADD PLANT (BEGIN)
+   🌿 TEST BUTTON
 ========================= */
 
 function addPlant(){
-
-  let name = prompt("Názov rastliny?");
-  if(!name) return;
-
-  let type = prompt("Typ (mint / rosemary)?");
-  if(!plantLibrary[type]){
-    alert("Použi mint alebo rosemary");
-    return;
-  }
-
-  let location = prompt("Miesto?");
-
-  plants.push({
-    id: Date.now(),
-    type: type,
-    name: name,
-    location: location,
-    lastWatered: Date.now()
-  });
-
-  renderPlants();
+  alert("klik funguje 💥");
 }
 
-/* =========================
-   🌿 ADD PLANT (END)
-========================= */
 </script>
 }
 </body>
