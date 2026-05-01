@@ -142,7 +142,16 @@ body::before {
     gap: 20px;
     margin-top: 20px;
 }
-
+.plant-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+.plant-card img { width: 100%; height: 120px; object-fit: contain; }
+.plant-card h3 { margin: 10px 0 5px 0; font-size: 1rem; }
+.plant-card p { margin: 0; font-size: 0.8rem; opacity: 0.5; }
 /* RESPONSÍVNE ÚPRAVY PRE MOBILY */
 @media (max-width: 600px) {
     .main {
@@ -188,7 +197,22 @@ body::before {
 </div>
 
 <!-- FLÓRA SEKCIÁ (skrytá) -->
-<section id="flora" style="display:none;">
+<!-- FLÓRA SEKCIÁ (OPRAVENÁ) -->
+<section id="flora" style="display:none; padding: 20px; text-align: center; padding-bottom: 120px;">
+    <h2 style="margin-top: 0;">🌿 Moja Flóra</h2>
+    
+    <!-- Skrytý input pre foťák (nevyhnutné pre mobil) -->
+    <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display:none;" onchange="handleCamera(event)">
+    
+    <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;">
+        <button onclick="addNewPlant()" style="padding:12px 24px; cursor:pointer; border-radius: 25px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); font-weight: bold;">+ Pridať</button>
+        <button onclick="document.getElementById('cameraInput').click()" style="padding:12px 24px; cursor:pointer; border-radius: 25px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); font-weight: bold;">📸 Odfotiť</button>
+    </div>
+
+    <div id="floraGrid" class="flora-grid">
+        <!-- Tu sa automaticky zobrazia tvoje rastliny -->
+    </div>
+</section>
     <h2>🌿 Moja Flóra</h2>
     <button onclick="alert('Pridávanie čoskoro!')" style="padding:10px 20px; cursor:pointer;">+ Pridať rastlinu</button>
     <div id="floraGrid" class="flora-grid">
@@ -293,6 +317,51 @@ loadEvents();
 setInterval(updateClock, 1000);
 setInterval(loadWeather, 600000);
 setInterval(loadEvents, 60000);
+let plants = JSON.parse(localStorage.getItem('myPlants')) || [];
+
+function renderPlants() {
+    const grid = document.getElementById("floraGrid");
+    if(!grid) return;
+    grid.innerHTML = plants.length ? "" : "<p style='opacity:0.3; grid-column: 1/-1;'>Zatiaľ tu nič nemáš.</p>";
+    plants.forEach((p) => {
+        grid.innerHTML += `
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; backdrop-filter: blur(10px);">
+                <img src="${p.img || 'icons/sun.png'}" style="width: 100%; height: 120px; object-fit: contain;">
+                <h3 style="margin: 10px 0 5px 0; font-size: 1rem;">${p.name}</h3>
+                <p style="margin: 0; font-size: 0.8rem; opacity: 0.5;">${p.room}</p>
+            </div>`;
+    });
+}
+
+function addNewPlant() {
+    const name = prompt("Názov rastliny:");
+    if(name) {
+        plants.push({ name: name, room: "Domov", img: "" });
+        localStorage.setItem('myPlants', JSON.stringify(plants));
+        renderPlants();
+    }
+}
+
+function handleCamera(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            plants.push({ name: "Nová rastlina", room: "Sken", img: e.target.result });
+            localStorage.setItem('myPlants', JSON.stringify(plants));
+            renderPlants();
+            window.open('https://www.google.com/search?q=identifikacia+rastliny', '_blank');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Spustenie vykresľovania pri každom zobrazení sekcie Flóra
+const originalShowFlora = showFlora;
+showFlora = function() {
+    originalShowFlora();
+    renderPlants();
+};
 </script>
 
 </body>
