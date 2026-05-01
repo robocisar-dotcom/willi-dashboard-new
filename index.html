@@ -209,7 +209,14 @@ body::before{
 ========================= -->
 
 <section id="flora" style="display:none;">
+
+    <!-- ADD BUTTON -->
+    <div style="padding:20px;">
+        <button onclick="addPlant()">+ Pridať rastlinu</button>
+    </div>
+
     <div id="floraGrid"></div>
+
 </section>
 
 <!-- =========================
@@ -446,7 +453,37 @@ function showHome(){
   // FLÓRA – vypnúť
   document.getElementById("flora").style.display = "none";
 }
+/* =========================
+   🌿 FLÓRA – PRIDAŤ RASTLINU (BEGIN)
+========================= */
 
+function addPlant(){
+
+  let name = prompt("Názov rastliny?");
+  if(!name) return;
+
+  let type = prompt("Typ (mint / rosemary)?");
+  if(!plantLibrary[type]){
+    alert("Neznámy typ (použi mint alebo rosemary)");
+    return;
+  }
+
+  let location = prompt("Miesto?");
+
+  plants.push({
+    id: Date.now(),
+    type: type,
+    name: name,
+    location: location,
+    lastWatered: Date.now()
+  });
+
+  renderPlants();
+}
+
+/* =========================
+   🌿 FLÓRA – PRIDAŤ RASTLINU (END)
+========================= */
 /* =========================
    🔁 NAVIGÁCIA (END)
 ========================= */
