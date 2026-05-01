@@ -120,7 +120,7 @@ body::before{
     </div>
 
     <div>
-        <img id="icon" class="weather-icon">
+        <span id="icon" style="font-size:80px">☀️</span>
         <div id="temp"></div>
         <div id="desc"></div>
     </div>
@@ -247,7 +247,39 @@ function showHome(){
 function addPlant(){
   alert("fungujem 💥");
 }
+/* =========================
+   🔧 FIX – WEATHER + CLICK
+========================= */
 
+// počasie (emoji – bez obrázkov)
+async function updateWeather(){
+  try{
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.3775&longitude=17.5883&current=temperature_2m,weather_code');
+    const data = await res.json();
+
+    document.getElementById('temp').innerText =
+      Math.round(data.current.temperature_2m) + "°C";
+
+    let code = data.current.weather_code;
+    let icon = "☀️";
+
+    if(code <= 3) icon = "🌤️";
+    else if(code < 50) icon = "☁️";
+    else if(code < 70) icon = "🌧️";
+    else icon = "❄️";
+
+    document.getElementById('icon').innerText = icon;
+
+  }catch(e){
+    console.log("weather error", e);
+  }
+}
+updateWeather();
+
+// test tlačidla
+function addPlant(){
+  alert("tlačidlo žije 💥");
+}
 </script>
 
 </body>
