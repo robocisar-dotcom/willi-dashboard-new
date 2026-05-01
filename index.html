@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WILLI</title>
+
+<style>
+
+/* =========================
+   🎨 LAYOUT – ZÁKLAD
+========================= */
+
+body{
+    margin:0;
+    background:#000;
+    color:#fff;
+    font-family:Arial, sans-serif;
+    overflow:hidden;
+}
+
+/* pozadie */
+body::before{
+    content:"";
+    position:absolute;
+    left:-40%;
+    top:-20%;
+    width:120%;
+    height:120%;
+    border-radius:50%;
+    background:radial-gradient(circle, #0b2a4a 0%, transparent 70%);
+    opacity:0.6;
+}
+
+
+/* =========================
+   🧱 LAYOUT – HLAVNÝ OBSAH
+========================= */
+
+.main{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    height:70vh;
+    padding:0 8vw;
+}
+
+
+/* =========================
+   ⏰ HODINY – ŠTÝL
+========================= */
+
+#clock{
+    font-size:clamp(80px,12vw,160px);
+    font-weight:800;
+}
+
+#date{
+    opacity:0.7;
+}
+
+
+/* =========================
+   🌦️ POČASIE – VEĽKÉ
+========================= */
+
+.weather-icon{
+    width: clamp(250px, 25vw, 500px);
+    display:block;
+    margin:auto;
+    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.7));
+}
+
+#temp{
+    font-size: clamp(40px, 6vw, 100px);
+    font-weight: 700;
+    text-align: center;
+    margin-top: 10px;
+}
+
+#desc{
+    font-size: clamp(20px, 3vw, 40px);
+    opacity: 0.8;
+    text-align: center;
+}
+
+
+/* =========================
+   📋 EVENT – ŠTÝL
+========================= */
+
+.event{
+    text-align:center;
+    margin-top:-40px;
+    opacity:0.8;
+}
+
+
+/* =========================
+   📱 MENU – KARTY
+========================= */
+
+.cards{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    display:flex;
+    justify-content:space-around;
+    background:rgba(20,20,20,0.9);
+    padding:20px 0;
+}
+/* =========================
+   📺 RESPONSIVE – VEĽKÉ OBRAZOVKY
+========================= */
+
+@media (min-width: 1200px){
+
+ .main{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    height:70vh;
+    padding:0 5vw;
+    gap:50px;
+}
+.main > div:last-child{
+    transform: scale(1.4);
+}
+/* =========================
+   🌦️ POČASIE – POSUN DOĽAVA
+========================= */
+
+.main > div:last-child{
+    transform: translateX(-300px);
+}
+  .weather-icon{
+    width: 220px;
+  }
+
+  #temp{
+    font-size: 40px;
+  }
+
+  .event{
+    font-size: 22px;
+  }
+
+  .cards{
+    padding: 30px 0;
+    font-size: 20px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- =========================
+     🧱 LAYOUT – HLAVNÝ OBAL
+========================= -->
+
+<div id="app">
+
+    <!-- =========================
+         🏠 DOMOV (HLAVNÁ OBRAZOVKA)
+    ========================= -->
+
+    <div class="main">
+
+        <div>
+            <div id="clock">00:00</div>
+            <div id="date">--</div>
+        </div>
+
+        <div>
+            <img id="icon" src="icons/sun.png" class="weather-icon">
+            <div id="temp">--°</div>
+            <div id="desc">Načítavam...</div>
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         📋 EVENTY
+    ========================= -->
+
+    <div class="event" id="event">
+    ✨ Načítavam...
+    </div>
+
+
+    <!-- =========================
+         📱 NAVIGÁCIA
+    ========================= -->
+
+    <div class="cards">
+        <div>🏠<br>DOMOV</div>
+        <div>🎵<br>MÉDIÁ</div>
+        <div>📱<br>DOM</div>
+        <div>🌿<br>FLÓRA</div>
+        <div>🌦️<br>POČASIE</div>
+        <div>📋<br>TABUĽKA</div>
+    </div>
+
+</div>
+
+
+<!-- =========================
+     🧠 SCRIPT – MOZOG APPKY
+========================= -->
+
+<script>
+
+/* =========================
+   ⏰ HODINY – LOGIKA
+========================= */
+
+function updateClock(){
+    const now = new Date();
+
+    document.getElementById("clock").innerHTML =
+        now.getHours().toString().padStart(2,'0') + ":" +
+        now.getMinutes().toString().padStart(2,'0');
+
+    document.getElementById("date").innerHTML =
+        now.toLocaleDateString('sk-SK',{
+            weekday:'long',
+            day:'numeric',
+            month:'long'
+        });
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+/* =========================
+   🌙 DEŇ / NOC
+========================= */
+
+function isNight(){
+    const h = new Date().getHours();
+    return (h >= 20 || h < 6);
+}
+
+
+/* =========================
+   🌦️ POČASIE – MAPA
+========================= */
+
+const weatherMap = {
+    clear:{day:"sun.png",night:"clear-night.png",text:"Jasno"},
+    cloudy:{day:"cloud.png",night:"cloudy-night.png",text:"Oblačno"},
+    partly:{day:"cloud.png",night:"partly-night.png",text:"Polooblačno"},
+    rain:{day:"rain.png",night:"rain-night.png",text:"Dážď"},
+    storm:{day:"storm.png",night:"storm-night.png",text:"Búrka"},
+    snow:{day:"snow.png",night:"snow.png",text:"Sneh"}
+};
+
+
+/* =========================
+   🌦️ POČASIE – LOGIKA
+========================= */
+
+function setWeather(type){
+    const icon = document.getElementById("icon");
+    const desc = document.getElementById("desc");
+
+    const data = weatherMap[type];
+    if(!data) return;
+
+    icon.src = "icons/" + (isNight()?data.night:data.day);
+    desc.innerHTML = data.text;
+}
+
+async function loadWeather(){
+    try{
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=48.15&longitude=17.11&current_weather=true");
+        const data = await res.json();
+
+        const temp = data.current_weather.temperature;
+        const code = data.current_weather.weathercode;
+
+        document.getElementById("temp").innerHTML = temp + "°";
+
+        if(code===0) setWeather("clear");
+        else if(code==1||code==2) setWeather("partly");
+        else if(code==3) setWeather("cloudy");
+        else if(code<=67) setWeather("rain");
+        else if(code<=77) setWeather("snow");
+        else if(code>=95) setWeather("storm");
+
+    }catch(e){
+        document.getElementById("desc").innerHTML="Chyba počasia";
+    }
+}
+
+loadWeather();
+setInterval(loadWeather,600000);
+
+
+/* =========================
+   📋 EVENTY – GOOGLE SHEETS (GVIZ FIX)
+========================= */
+
+const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
+const gid = '602623609';
+
+async function loadEvents(){
+    try{
+        let res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`);
+        let txt = await res.text();
+
+        // odstráni Google wrapper
+        let json = JSON.parse(txt.substring(47).slice(0,-2));
+
+        let now = new Date();
+        let found = null;
+
+        json.table.rows.forEach(r=>{
+            if(!r.c) return;
+
+            let val = r.c[1]?.f || r.c[1]?.v || "";
+
+           let cell = r.c[1];
+let isToday = false;
+
+if(cell && cell.v && typeof cell.v === "string" && cell.v.startsWith("Date(")){
+
+    let parts = cell.v.match(/\d+/g);
+
+    if(parts){
+        let y = parseInt(parts[0]);
+        let m = parseInt(parts[1]);
+        let d = parseInt(parts[2]);
+
+        let today = new Date();
+
+        isToday =
+            d === today.getDate() &&
+            m === today.getMonth() &&
+            y === today.getFullYear();
+    }
+
+}else if(cell && cell.f){
+    let todayStr =
+        now.getDate() + "." +
+        (now.getMonth()+1) + "." +
+        now.getFullYear();
+
+    isToday = cell.f.includes(todayStr);
+}
+
+            if(!isToday) return;
+
+            let auto = r.c[2]?.v || "";
+            let note = r.c[3]?.v || "";
+
+            found = {auto, note};
+        });
+
+        if(found){
+            document.getElementById("event").innerHTML =
+                "✨ " + (found.note || "Bez poznámky") +
+                "<br>(" + (found.auto || "") + ")";
+        }else{
+            document.getElementById("event").innerHTML =
+                "✨ Žiadne udalosti dnes";
+        }
+
+    }catch(e){
+        console.log("EVENT ERROR:", e);
+        document.getElementById("event").innerHTML =
+            "❌ Chyba načítania";
+    }
+}
+
+loadEvents();
+setInterval(loadEvents,300000);
+
+</script>
+
+</body>
+</html>
