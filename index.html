@@ -309,6 +309,44 @@ loadEvents();
 setInterval(updateClock, 1000);
 setInterval(loadWeather, 600000);
 setInterval(loadEvents, 60000);
+// 🌿 LOGIKA PRE FLÓRU (PRIDANÁ NA KONIEC TVOJHO SKRIPTU)
+let plants = JSON.parse(localStorage.getItem('myPlants')) || [];
+
+function renderPlants() {
+    const grid = document.getElementById("floraGrid");
+    if(!grid) return;
+    grid.innerHTML = plants.map(p => `
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 10px;">
+            <img src="${p.img || 'icons/sun.png'}" style="width: 100%; height: 100px; object-fit: contain;">
+            <h4 style="margin: 5px 0;">${p.name}</h4>
+        </div>
+    `).join('');
+}
+
+function addNewPlant() {
+    const name = prompt("Názov:");
+    if(name) {
+        plants.push({ name: name, img: "" });
+        localStorage.setItem('myPlants', JSON.stringify(plants));
+        renderPlants();
+    }
+}
+
+function handleCamera(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            plants.push({ name: "Nová", img: e.target.result });
+            localStorage.setItem('myPlants', JSON.stringify(plants));
+            renderPlants();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Spusti vykreslenie hneď pri načítaní
+renderPlants();
 </script>
 
 </body>
