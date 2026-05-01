@@ -200,6 +200,22 @@ body::before{
 <div class="event" id="event">Načítavam...</div>
 
 <!-- =========================
+     🌿 FLÓRA (BEGIN)
+========================= -->
+<section id="flora" style="display:none;">
+
+    <div style="padding:20px;">
+        <button onclick="addPlant()">+ Pridať rastlinu</button>
+    </div>
+
+    <div id="floraGrid"></div>
+
+</section>
+<!-- =========================
+     🌿 FLÓRA (END)
+========================= -->
+
+<!-- =========================
      📋 EVENTY (END)
 ========================= -->
 
@@ -439,48 +455,19 @@ function waterPlant(id){
 function showFlora(){
   document.querySelector(".main").style.display="none";
   document.getElementById("event").style.display="none";
-
   document.getElementById("flora").style.display="block";
   renderPlants();
 }
 
 function showHome(){
-
-  // DOMOV – všetko zapnúť
-  document.querySelector(".main").style.display = "";
-  document.getElementById("event").style.display = "";
-
-  // FLÓRA – vypnúť
-  document.getElementById("flora").style.display = "none";
+  document.querySelector(".main").style.display="";
+  document.getElementById("event").style.display="";
+  document.getElementById("flora").style.display="none";
 }
+
 /* =========================
-   🌿 FLÓRA – PRIDAŤ RASTLINU (BEGIN)
+   🔁 NAVIGÁCIA (END)
 ========================= */
-
-function addPlant(){
-
-  let name = prompt("Názov rastliny?");
-  if(!name) return;
-
-  let type = prompt("Typ (mint / rosemary)?");
-  if(!plantLibrary[type]){
-    alert("Neznámy typ (použi mint alebo rosemary)");
-    return;
-  }
-
-  let location = prompt("Miesto?");
-
-  plants.push({
-    id: Date.now(),
-    type: type,
-    name: name,
-    location: location,
-    lastWatered: Date.now()
-  });
-
-  renderPlants();
-}
-
 /* =========================
    🌿 FLÓRA – PRIDAŤ RASTLINU (END)
 ========================= */
