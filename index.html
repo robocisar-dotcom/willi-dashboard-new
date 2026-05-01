@@ -249,7 +249,58 @@ body::before {
     <div class="nav-item" onclick="showHome()">🏠</div>
     <div class="nav-item" onclick="showFlora()">🌿</div>
 </div>
+let plants = JSON.parse(localStorage.getItem('willi_plants')) || [];
 
+function renderPlants() {
+    const grid = document.getElementById("floraGrid");
+    if(!grid) return;
+    grid.innerHTML = "";
+
+    plants.forEach((p, index) => {
+        const color = p.moisture > 60 ? '#4caf50' : (p.moisture > 30 ? '#ff9800' : '#f44336');
+        grid.innerHTML += `
+            <div class="plant-card">
+                <img src="${p.img}" class="plant-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/628/628283.png'">
+                <div class="plant-title">${p.name}</div>
+                <div class="plant-loc">${p.location}</div>
+                <span class="status-text" style="color:${color}">Stav: ${p.moisture > 30 ? 'Dobrý' : 'Treba poliať'}</span>
+                <div class="status-container">
+                    <div class="status-bar" style="width:${p.moisture}%; background:${color}"></div>
+                </div>
+                <div style="font-size: 0.7rem; margin-top: 10px; opacity: 0.4;">Poliatie: pred ${p.days} dňami</div>
+                <div onclick="deletePlant(${index})" style="position:absolute; top:15px; right:15px; cursor:pointer; opacity:0.2">✕</div>
+            </div>
+        `;
+    });
+}
+
+let plants = JSON.parse(localStorage.getItem('willi_plants')) || [];
+
+function renderPlants() {
+    const grid = document.getElementById("floraGrid");
+    if(!grid) return;
+    grid.innerHTML = "";
+
+    plants.forEach((p, index) => {
+        const color = p.moisture > 60 ? '#4caf50' : (p.moisture > 30 ? '#ff9800' : '#f44336');
+        grid.innerHTML += `
+            <div class="plant-card">
+                <img src="${p.img}" class="plant-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/628/628283.png'">
+                <div class="plant-title">${p.name}</div>
+                <div class="plant-loc">${p.location}</div>
+                <span class="status-text" style="color:${color}">Stav: ${p.moisture > 30 ? 'Dobrý' : 'Treba poliať'}</span>
+                <div class="status-container">
+                    <div class="status-bar" style="width:${p.moisture}%; background:${color}"></div>
+                </div>
+                <div style="font-size: 0.7rem; margin-top: 10px; opacity: 0.4;">Poliatie: pred ${p.days} dňami</div>
+                <div onclick="deletePlant(${index})" style="position:absolute; top:15px; right:15px; cursor:pointer; opacity:0.2">✕</div>
+            </div>
+        `;
+    });
+}
+
+renderPlants();
+}
 <script>
 const sheetId = '1wAMdy1V_88RKowxIeDsC8Q2ROgS8U44p2NeTfJBKyO8';
 const gid = '602623609';
