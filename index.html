@@ -8,15 +8,13 @@
 <style>
 
 /* =========================
-   🎨 LAYOUT – ZÁKLAD (BEGIN)
+   🎨 ZÁKLAD
 ========================= */
-
 body{
     margin:0;
     background:#000;
     color:#fff;
     font-family:Arial, sans-serif;
-    overflow:hidden;
 }
 
 /* pozadie */
@@ -33,122 +31,71 @@ body::before{
 }
 
 /* =========================
-   🎨 LAYOUT – ZÁKLAD (END)
+   🧱 LAYOUT
 ========================= */
-
-
-/* =========================
-   🧱 LAYOUT – HLAVNÝ OBSAH (BEGIN)
-========================= */
-
 .main{
     display:flex;
     justify-content:space-between;
     align-items:center;
     height:70vh;
     padding:0 5vw;
-    gap:50px;
 }
 
 /* =========================
-   🧱 LAYOUT – HLAVNÝ OBSAH (END)
+   ⏰ HODINY
 ========================= */
-
-
-/* =========================
-   ⏰ HODINY (BEGIN)
-========================= */
-
 #clock{
-    font-size:clamp(80px,12vw,160px);
-    font-weight:800;
+    font-size:120px;
 }
-
 #date-sk{
     opacity:0.7;
 }
 
 /* =========================
-   ⏰ HODINY (END)
+   🌦️ POČASIE
 ========================= */
-
-
-/* =========================
-   🌦️ POČASIE (BEGIN)
-========================= */
-
 .weather-icon{
-    width: clamp(250px, 25vw, 500px);
+    width:250px;
 }
-
 #temp{
-    font-size: clamp(40px, 6vw, 100px);
-    text-align:center;
-}
-
-#desc{
-    text-align:center;
+    font-size:50px;
 }
 
 /* =========================
-   🌦️ POČASIE (END)
+   📋 EVENT
 ========================= */
-
-
-/* =========================
-   📋 EVENTY (BEGIN)
-========================= */
-
 .event{
     text-align:center;
-    margin-top:-40px;
 }
 
 /* =========================
-   📋 EVENTY (END)
+   📱 MENU
 ========================= */
-
-
-/* =========================
-   📱 MENU (BEGIN)
-========================= */
-
 .cards{
     position:fixed;
     bottom:0;
     width:100%;
     display:flex;
     justify-content:space-around;
-    background:rgba(20,20,20,0.9);
-    padding:20px 0;
+    background:#111;
+    padding:15px;
 }
 
 /* =========================
-   📱 MENU (END)
+   🌿 FLÓRA
 ========================= */
-
-
-/* =========================
-   🌿 FLÓRA – ŠTÝLY (BEGIN)
-========================= */
-
 #floraGrid{
     display:flex;
-    flex-wrap:wrap;
-    gap:15px;
+    gap:20px;
     padding:20px;
 }
 
 .plant-card{
-    width:200px;
     background:#111;
-    border-radius:16px;
-    padding:12px;
+    padding:15px;
+    border-radius:15px;
+    box-shadow:0 0 15px green;
 }
-
-.plant-card.good{ box-shadow:0 0 10px green; }
-.plant-card.warning{ box-shadow:0 0 10px orange; }
-.plant-card.danger{ box-shadow:0 0 10px red; }
 
 .progress{
     height:6px;
@@ -160,21 +107,13 @@ body::before{
     background:lime;
 }
 
-/* =========================
-   🌿 FLÓRA – ŠTÝLY (END)
-========================= */
-
 </style>
 </head>
 
 <body>
 
-<!-- =========================
-     🏠 DOMOV (BEGIN)
-========================= -->
-
+<!-- DOMOV -->
 <div class="main">
-
     <div>
         <div id="clock"></div>
         <div id="date-sk"></div>
@@ -185,108 +124,109 @@ body::before{
         <div id="temp"></div>
         <div id="desc"></div>
     </div>
-
 </div>
-
-<!-- =========================
-     🏠 DOMOV (END)
-========================= -->
-
-
-<!-- =========================
-     📋 EVENTY (BEGIN)
-========================= -->
 
 <div class="event" id="event">Načítavam...</div>
 
-<!-- =========================
-     🌿 FLÓRA (BEGIN)
-========================= -->
-<section id="flora" style="display:block;">
-
-    <div style="padding:20px;">
-        <button onclick="addPlant()">+ Pridať rastlinu</button>
-    </div>
-
-   <div style="padding:20px;">
-  <button onclick="alert('fungujem')">+ Pridať rastlinu</button>
-</div>
-
-<div id="floraGrid"></div>
-</section>
-<!-- =========================
-     🌿 FLÓRA (END)
-========================= -->
-
-<!-- =========================
-     📋 EVENTY (END)
-========================= -->
-
-
-<!-- =========================
-     🌿 FLÓRA (BEGIN)
-========================= -->
-
+<!-- FLÓRA -->
 <section id="flora" style="display:none;">
-
-    <!-- ADD BUTTON -->
     <div style="padding:20px;">
         <button onclick="addPlant()">+ Pridať rastlinu</button>
     </div>
-
     <div id="floraGrid"></div>
-
 </section>
 
-<!-- =========================
-     🌿 FLÓRA (END)
-========================= -->
-
-
-<!-- =========================
-     📱 MENU (BEGIN)
-========================= -->
-
+<!-- MENU -->
 <div class="cards">
     <div onclick="showHome()">🏠<br>DOMOV</div>
     <div onclick="showFlora()">🌿<br>FLÓRA</div>
 </div>
 
-<!-- =========================
-     📱 MENU (END)
-========================= -->
-
-
 <script>
 
-/* TEST – MUSÍ VYSKOČIŤ PRI NAČÍTANÍ */
-alert("JS beží");
+/* ⏰ HODINY */
+function updateClock(){
+    const now = new Date();
+    document.getElementById("clock").innerHTML =
+        now.getHours().toString().padStart(2,'0') + ":" +
+        now.getMinutes().toString().padStart(2,'0');
 
-/* =========================
-   🔁 NAVIGÁCIA
-========================= */
+    document.getElementById("date-sk").innerHTML =
+        now.toLocaleDateString('sk-SK',{weekday:'long',day:'numeric',month:'long'});
+}
+setInterval(updateClock,1000);
+updateClock();
 
+/* 🔁 NAVIGÁCIA */
 function showFlora(){
-  document.querySelector(".main").style.display="none";
-  document.getElementById("event").style.display="none";
-  document.getElementById("flora").style.display="block";
+    document.querySelector(".main").style.display="none";
+    document.getElementById("event").style.display="none";
+    document.getElementById("flora").style.display="block";
+    renderPlants();
 }
 
 function showHome(){
-  document.querySelector(".main").style.display="";
-  document.getElementById("event").style.display="";
-  document.getElementById("flora").style.display="none";
+    document.querySelector(".main").style.display="flex";
+    document.getElementById("event").style.display="block";
+    document.getElementById("flora").style.display="none";
 }
 
-/* =========================
-   🌿 TEST BUTTON
-========================= */
+/* 🌿 DATA */
+const plantLibrary = {
+  mint:{interval:3}
+};
 
+let plants = [
+  {
+    id:1,
+    type:"mint",
+    name:"Mäta",
+    location:"Balkón",
+    lastWatered:Date.now()-2*86400000
+  }
+];
+
+/* 🌿 RENDER */
+function renderPlants(){
+    const grid = document.getElementById("floraGrid");
+    grid.innerHTML="";
+
+    plants.forEach(p=>{
+        let days = (Date.now()-p.lastWatered)/86400000;
+        let progress = days / plantLibrary[p.type].interval;
+
+        let div=document.createElement("div");
+        div.className="plant-card";
+
+        div.innerHTML=`
+            <h3>${p.name}</h3>
+            <p>${p.location}</p>
+            <div class="progress">
+                <div class="bar" style="width:${progress*100}%"></div>
+            </div>
+        `;
+
+        grid.appendChild(div);
+    });
+}
+
+/* 🌿 ADD */
 function addPlant(){
-  alert("klik funguje 💥");
+    let name = prompt("Názov?");
+    if(!name) return;
+
+    plants.push({
+        id: Date.now(),
+        type:"mint",
+        name:name,
+        location:"Dom",
+        lastWatered:Date.now()
+    });
+
+    renderPlants();
 }
 
 </script>
-}
+
 </body>
 </html>
